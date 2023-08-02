@@ -3,6 +3,7 @@ package br.com.brunosansp.apijavajunit.services.impl;
 import br.com.brunosansp.apijavajunit.domain.Customer;
 import br.com.brunosansp.apijavajunit.repositories.ICustomerRepository;
 import br.com.brunosansp.apijavajunit.services.ICustomerService;
+import br.com.brunosansp.apijavajunit.services.exceptions.ObjectNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,6 +20,6 @@ public class CustomerServiceImpl implements ICustomerService {
   @Override
   public Customer findById(Integer id) {
     Optional<Customer> obj = customerRepository.findById(id);
-    return obj.orElse(null);
+    return obj.orElseThrow(() -> new ObjectNotFoundException("Customer não encontrado."));
   }
 }
