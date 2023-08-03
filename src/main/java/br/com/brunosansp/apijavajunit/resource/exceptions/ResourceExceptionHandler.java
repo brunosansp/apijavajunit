@@ -1,5 +1,6 @@
 package br.com.brunosansp.apijavajunit.resource.exceptions;
 
+import br.com.brunosansp.apijavajunit.services.exceptions.DataIntegratyViolationException;
 import br.com.brunosansp.apijavajunit.services.exceptions.ObjectNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -16,5 +17,11 @@ public class ResourceExceptionHandler {
   public ResponseEntity<StandardError> objectNotFound(ObjectNotFoundException ex, HttpServletRequest request) {
     StandardError error = new StandardError(LocalDateTime.now(), HttpStatus.NOT_FOUND.value(), ex.getMessage(), request.getRequestURI());
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+  }
+  
+  @ExceptionHandler(DataIntegratyViolationException.class)
+  public ResponseEntity<StandardError> ataIntegratyViolationException(DataIntegratyViolationException ex, HttpServletRequest request) {
+    StandardError error = new StandardError(LocalDateTime.now(), HttpStatus.CONFLICT.value(), ex.getMessage(), request.getRequestURI());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
   }
 }
