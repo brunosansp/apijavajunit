@@ -33,4 +33,4 @@ build/
 .vscode/
 
 ### OTHER FILES ###
-*.txt
+temp.txt
