@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/customer")
 public class CustomerResource {
   
+  public static final String ID = "/{id}";
   private final ModelMapper mapper;
   
   private final CustomerServiceImpl customerService;
@@ -25,7 +26,7 @@ public class CustomerResource {
     this.customerService = customerService;
   }
   
-  @GetMapping("/{id}")
+  @GetMapping(ID)
   public ResponseEntity<CustomerDTO> findById(@PathVariable Integer id) {
     return ResponseEntity.ok().body(mapper.map(customerService.findById(id), CustomerDTO.class));
   }
@@ -40,13 +41,19 @@ public class CustomerResource {
   @PostMapping
   public ResponseEntity<CustomerDTO> create(@RequestBody CustomerDTO request) {
     URI uri = ServletUriComponentsBuilder
-      .fromCurrentRequest().path("/{id}").buildAndExpand(customerService.create(request).getId()).toUri();
+      .fromCurrentRequest().path(ID).buildAndExpand(customerService.create(request).getId()).toUri();
     return ResponseEntity.created(uri).build();
   }
   
-  @PutMapping(value = "/{id}")
+  @PutMapping(value = ID)
   public ResponseEntity<CustomerDTO> update(@PathVariable Integer id, @RequestBody CustomerDTO customerDTO) {
     customerDTO.setId(id);
     return ResponseEntity.ok().body(mapper.map(customerService.update(customerDTO), CustomerDTO.class));
+  }
+  
+  @DeleteMapping(value = ID)
+  public ResponseEntity<CustomerDTO> delete(@PathVariable Integer id) {
+    customerService.delete(id);
+    return ResponseEntity.noContent().build();
   }
 }

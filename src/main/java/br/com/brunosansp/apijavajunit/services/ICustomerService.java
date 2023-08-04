@@ -11,4 +11,5 @@ public interface ICustomerService {
   List<Customer> findAll();
   Customer create(CustomerDTO customerDTO);
   Customer update(CustomerDTO customerDTO);
+  void delete(Integer id);
 }
