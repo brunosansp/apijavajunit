@@ -10,4 +10,5 @@ public interface ICustomerService {
   Customer findById(Integer id);
   List<Customer> findAll();
   Customer create(CustomerDTO customerDTO);
+  Customer update(CustomerDTO customerDTO);
 }

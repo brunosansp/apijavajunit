@@ -40,8 +40,15 @@ public class CustomerServiceImpl implements ICustomerService {
     return customerRepository.save(mapper.map(customerDTO, Customer.class));
   }
   
+  @Override
+  public Customer update(CustomerDTO customerDTO) {
+    findByEmail(customerDTO);
+    return customerRepository.save(mapper.map(customerDTO, Customer.class));
+  }
+  
   private void findByEmail(CustomerDTO customerDTO) {
     Optional<Customer> customer = customerRepository.findByEmail(customerDTO.getEmail());
-    if(customer.isPresent()) throw new DataIntegratyViolationException("E-mail já cadastrado no sistema.");
+    if(customer.isPresent() && !customer.get().getId().equals(customerDTO.getId()))
+      throw new DataIntegratyViolationException("E-mail já cadastrado no sistema.");
   }
 }
