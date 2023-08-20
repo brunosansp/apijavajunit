@@ -15,46 +15,47 @@ import java.util.Optional;
 @Service
 public class CustomerServiceImpl implements ICustomerService {
   
-  private final ICustomerRepository customerRepository;
+  private final ICustomerRepository repository;
   
   private final ModelMapper mapper;
   
-  public CustomerServiceImpl(ICustomerRepository customerRepository, ModelMapper mapper) {
-    this.customerRepository = customerRepository;
+  public CustomerServiceImpl(ICustomerRepository repository, ModelMapper mapper) {
+    this.repository = repository;
     this.mapper = mapper;
   }
   
   @Override
   public Customer findById(Integer id) {
-    Optional<Customer> obj = customerRepository.findById(id);
-    return obj.orElseThrow(() -> new ObjectNotFoundException("Customer não encontrado."));
+    Optional<Customer> obj = repository.findById(id);
+    return obj.orElseThrow(() -> new ObjectNotFoundException("Objeto não encontrado"));
   }
   
   public List<Customer> findAll() {
-    return customerRepository.findAll();
+    return repository.findAll();
   }
   
   @Override
   public Customer create(CustomerDTO customerDTO) {
     findByEmail(customerDTO);
-    return customerRepository.save(mapper.map(customerDTO, Customer.class));
+    return repository.save(mapper.map(customerDTO, Customer.class));
   }
   
   @Override
   public Customer update(CustomerDTO customerDTO) {
     findByEmail(customerDTO);
-    return customerRepository.save(mapper.map(customerDTO, Customer.class));
+    return repository.save(mapper.map(customerDTO, Customer.class));
   }
   
   @Override
   public void delete(Integer id) {
     findById(id);
-    customerRepository.deleteById(id);
+    repository.deleteById(id);
   }
   
-  private void findByEmail(CustomerDTO customerDTO) {
-    Optional<Customer> customer = customerRepository.findByEmail(customerDTO.getEmail());
-    if(customer.isPresent() && !customer.get().getId().equals(customerDTO.getId()))
-      throw new DataIntegratyViolationException("E-mail já cadastrado no sistema.");
+  private void findByEmail(CustomerDTO obj) {
+    Optional<Customer> user = repository.findByEmail(obj.getEmail());
+    if(user.isPresent() && !user.get().getId().equals(obj.getId())) {
+      throw new DataIntegratyViolationException("E-mail já cadastrado no sistema");
+    }
   }
 }
