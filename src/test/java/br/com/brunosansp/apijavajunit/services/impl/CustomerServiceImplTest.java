@@ -48,7 +48,8 @@ class CustomerServiceImplTest {
   
   @BeforeEach
   void setUp() {
-    MockitoAnnotations.initMocks(this);
+    MockitoAnnotations.openMocks(this);
+    service = new CustomerServiceImpl(repository, mapper);
     startCustomer();
   }
   
@@ -100,7 +101,17 @@ class CustomerServiceImplTest {
   }
   
   @Test
-  void create() {
+  void whenCreateThenReturnSuccess() {
+    when(repository.save(any())).thenReturn(customer);
+    
+    Customer response = service.create(customerDTO);
+    
+    assertNotNull(response);
+    assertEquals(Customer.class, response.getClass());
+    assertEquals(ID, response.getId());
+    assertEquals(NAME, response.getName());
+    assertEquals(EMAIL, response.getEmail());
+    assertEquals(PASSWORD, response.getPassword());
   }
 
   @Test
