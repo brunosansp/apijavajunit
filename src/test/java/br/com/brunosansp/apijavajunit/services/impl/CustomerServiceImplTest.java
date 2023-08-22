@@ -3,7 +3,9 @@ package br.com.brunosansp.apijavajunit.services.impl;
 import br.com.brunosansp.apijavajunit.domain.Customer;
 import br.com.brunosansp.apijavajunit.domain.dtos.CustomerDTO;
 import br.com.brunosansp.apijavajunit.repositories.ICustomerRepository;
+import br.com.brunosansp.apijavajunit.services.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -13,10 +15,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+@DisplayName("Testing the CustomerServiceImpl class")
 @SpringBootTest
 class CustomerServiceImplTest {
   
@@ -24,6 +29,7 @@ class CustomerServiceImplTest {
   public static final String NAME = "teste";
   public static final String EMAIL = "teste@mail.com";
   public static final String PASSWORD = "123";
+  public static final String OBJETO_NAO_ENCONTRADO = "Objeto não encontrado";
   
   @InjectMocks
   private CustomerServiceImpl service;
@@ -40,8 +46,13 @@ class CustomerServiceImplTest {
   
   @BeforeEach
   void setUp() {
-    MockitoAnnotations.openMocks(this);
+    MockitoAnnotations.initMocks(this);
     startCustomer();
+  }
+  
+  @Test
+  public void contextLoads() throws Exception {
+    assertThat(service).isNotNull();
   }
   
   @Test
@@ -58,6 +69,18 @@ class CustomerServiceImplTest {
     assertEquals(EMAIL, response.getEmail());
   }
   
+  @Test
+  void whenFindByIdThenReturnAnObjectNotFoundException() {
+    when(repository.findById(anyInt()))
+      .thenThrow(new ObjectNotFoundException(OBJETO_NAO_ENCONTRADO));
+    
+    try {
+      service.findById(ID);
+    } catch (Exception ex) {
+      assertEquals(ObjectNotFoundException.class, ex.getClass());
+      assertEquals(OBJETO_NAO_ENCONTRADO, ex.getMessage());
+    }
+  }
 
   @Test
   void findAll() {
