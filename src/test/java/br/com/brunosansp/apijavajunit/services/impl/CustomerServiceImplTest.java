@@ -3,6 +3,7 @@ package br.com.brunosansp.apijavajunit.services.impl;
 import br.com.brunosansp.apijavajunit.domain.Customer;
 import br.com.brunosansp.apijavajunit.domain.dtos.CustomerDTO;
 import br.com.brunosansp.apijavajunit.repositories.ICustomerRepository;
+import br.com.brunosansp.apijavajunit.services.exceptions.DataIntegratyViolationException;
 import br.com.brunosansp.apijavajunit.services.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,7 +32,7 @@ class CustomerServiceImplTest {
   public static final String EMAIL = "teste@mail.com";
   public static final String PASSWORD = "123";
   public static final String OBJETO_NAO_ENCONTRADO = "Objeto não encontrado";
-  public static final int INDEX = 0;
+  public static final int INDEX_ZERO = 0;
   
   @InjectMocks
   private CustomerServiceImpl service;
@@ -92,12 +93,12 @@ class CustomerServiceImplTest {
     
     assertNotNull(response);
     assertEquals(1, response.size());
-    assertEquals(Customer.class, response.get(INDEX).getClass());
+    assertEquals(Customer.class, response.get(INDEX_ZERO).getClass());
     
-    assertEquals(ID, response.get(INDEX).getId());
-    assertEquals(NAME, response.get(INDEX).getName());
-    assertEquals(EMAIL, response.get(INDEX).getEmail());
-    assertEquals(PASSWORD, response.get(INDEX).getPassword());
+    assertEquals(ID, response.get(INDEX_ZERO).getId());
+    assertEquals(NAME, response.get(INDEX_ZERO).getName());
+    assertEquals(EMAIL, response.get(INDEX_ZERO).getEmail());
+    assertEquals(PASSWORD, response.get(INDEX_ZERO).getPassword());
   }
   
   @Test
@@ -112,6 +113,19 @@ class CustomerServiceImplTest {
     assertEquals(NAME, response.getName());
     assertEquals(EMAIL, response.getEmail());
     assertEquals(PASSWORD, response.getPassword());
+  }
+  
+  @Test
+  void whenCreateThenReturnAnDataIntegrityViolationException() {
+    when(repository.findByEmail(anyString())).thenReturn(optionalCustomer);
+    
+    try {
+      optionalCustomer.ifPresent(value -> value.setId(9));
+      service.create(customerDTO);
+    } catch (Exception ex) {
+      assertEquals(DataIntegratyViolationException.class, ex.getClass());
+      assertEquals("E-mail já cadastrado no sistema", ex.getMessage());
+    }
   }
 
   @Test
