@@ -33,6 +33,8 @@ class CustomerServiceImplTest {
   public static final String PASSWORD = "123";
   public static final String OBJETO_NAO_ENCONTRADO = "Objeto não encontrado";
   public static final int INDEX_ZERO = 0;
+  public static final String EMAIL_JA_CADASTRADO = "E-mail já cadastrado no sistema";
+  public static final String OBJECT_NOT_FOUND = "Objeto não encontrado.";
   
   @InjectMocks
   private CustomerServiceImpl service;
@@ -55,7 +57,7 @@ class CustomerServiceImplTest {
   }
   
   @Test
-  public void contextLoads() throws Exception {
+  void contextLoads() throws Exception {
     assertThat(service).isNotNull();
   }
   
@@ -124,16 +126,55 @@ class CustomerServiceImplTest {
       service.create(customerDTO);
     } catch (Exception ex) {
       assertEquals(DataIntegratyViolationException.class, ex.getClass());
-      assertEquals("E-mail já cadastrado no sistema", ex.getMessage());
+      assertEquals(EMAIL_JA_CADASTRADO, ex.getMessage());
     }
   }
 
   @Test
-  void update() {
+  void whenUpdateThenReturnSuccess() {
+    when(repository.save(any())).thenReturn(customer);
+    
+    Customer response = service.update(customerDTO);
+    
+    assertNotNull(response);
+    assertEquals(Customer.class, response.getClass());
+    assertEquals(ID, response.getId());
+    assertEquals(NAME, response.getName());
+    assertEquals(EMAIL, response.getEmail());
+    assertEquals(PASSWORD, response.getPassword());
+  }
+  
+  @Test
+  void whenUpdateThenReturnAnDataIntegrityViolationException() {
+    when(repository.findByEmail(anyString())).thenReturn(optionalCustomer);
+    
+    try {
+      optionalCustomer.ifPresent(value -> value.setId(2));
+      service.create(customerDTO);
+    } catch (Exception ex) {
+      assertEquals(DataIntegratyViolationException.class, ex.getClass());
+      assertEquals(EMAIL_JA_CADASTRADO, ex.getMessage());
+    }
   }
 
   @Test
-  void delete() {
+  void deleteWithSuccess() {
+    when(repository.findById(anyInt())).thenReturn(optionalCustomer);
+    doNothing().when(repository).deleteById(anyInt());
+    service.delete(ID);
+    verify(repository, times(1)).deleteById(anyInt());
+  }
+  
+  @Test
+  void deleteWithObjectNotFoundException() {
+    when(repository.findById(anyInt())).thenThrow(new ObjectNotFoundException(OBJECT_NOT_FOUND));
+    
+    try {
+      service.delete(ID);
+    } catch (Exception ex) {
+      assertEquals(ObjectNotFoundException.class, ex.getClass());
+      assertEquals(OBJECT_NOT_FOUND, ex.getMessage());
+    }
   }
   
   private void startCustomer() {
